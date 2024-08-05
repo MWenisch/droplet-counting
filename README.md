@@ -21,3 +21,7 @@ This project uses OpenCV to detect and count droplets in an image or image time 
 - OpenCV
 - NumPy
 - Matplotlib
+- Tifffile
+- scikit-image
+- SciPy
+- Imutlis
