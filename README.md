@@ -7,11 +7,12 @@ Complex coacervation occurs when oppositely charged polyelectrolytes interact, l
 
 ## Code
 
-This project uses OpenCV to detect and count droplets in an image or image time series. A tif-file with either one image or a time series is required as input. For the analysis, we first smoothed the grayscale images to reduce the noise using Gaussian blur. The blurred images were then converted into a binary mask using a defined threshold. Every pixel which has an intensity above 15 was considered as a signal and the intensity was set to 255. Pixels with a intensity below 15 were considered as background and were set to 0. The binary mask was used to determine the size of the droplets in the mask. We set the minimal size of a droplet to 0.24 μm, which is the resolution of the used confocal objective. Everything below that size is not considered in the counting step and is treated as an image artefact. The remaining droplets in the mask are counted and plotted over time. 
+This project uses OpenCV to detect and count droplets in an image or image time series. A tif-file with either one image or a time series is required as input. For the analysis, the image is converted into a grayscale image which is then smoothed to reduce the noise using Gaussian blur. The blurred images were then converted into a binary mask using a defined threshold. Every pixel which has an intensity above a user defined threshold is considered as a signal and the intensity is set to 255. Pixels with a intensity below this threshold are considered as background and are set to 0. The binary mask is used to determine the size of the droplets in the mask. The minimal size of a droplet to 0.24μm, which is the resolution of the used confocal objective. Everything below that size is not considered in the counting step and is treated as an image artefact. The remaining droplets in the mask are counted and the number of the droplets is plotted over time. Additionally, the area of the droplet and the droplet volume is calculated, assuming a perfectly spherical sphere. An output file with the counted droplets, area and volume of each droplet for each frame is automaticlly saved in the parent folder of the image/image time series. 
 
 ## Features
 
 - Count droplets in a given image/ image time series
+- Calculate the volume of the droplets assumng perfectly sherical spheres
 - Visualize detected droplets
 
 ### Prerequisites
