@@ -26,6 +26,7 @@ def droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pix
     objectData = []
     drop_radius = []
     drop_area = []
+    drop_circularity = []
 
     # ObjectCounter:
     objectCounter = 0
@@ -41,6 +42,15 @@ def droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pix
         objectCounter += 1
         drop_radius.append(r)
 
+        # get the perimeter of the droplet and calculate the circularity of that droplet
+        perimeter = cv2.arcLength(c, True)
+        area = cv2.contourArea(c)
+        if perimeter == 0:
+            break
+        circularity = (4 * math.pi * area) / (perimeter * perimeter)
+
+        drop_circularity.append(circularity)
+
         # Counting the pixel Size of the droplets
         empty_image = np.zeros_like(inputImageCopy)
         only_one_shape = cv2.drawContours(empty_image, [c], -1, (255, 255, 255), thickness=cv2.FILLED)
@@ -53,7 +63,20 @@ def droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pix
         cv2.circle(blurred_img, (int(x), int(y)), int(r), (0, 255, 0), 2)
         cv2.putText(blurred_img, "{}".format(objectCounter), (int(x) - 10, int(y)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
-
+    
+    #calculate the mean circularity of one frame
+    if len(drop_circularity)>1:
+        
+        mean_circ = statistics.mean(drop_circularity)
+     # calculate the deviation circularity
+        deviation_circ = statistics.stdev(drop_circularity)
+    elif len(drop_circularity) == 1:
+        mean_circ = drop_circularity[0]
+        deviation_circ = 0
+    else:
+        mean_circ = 0
+        deviation_circ = 0 
+        
     # plot results
     if show_mask_plot:
         fig, axes = plt.subplots(ncols=3, figsize=(12, 6), sharex=True, sharey=True)
@@ -72,4 +95,4 @@ def droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pix
         fig.tight_layout()
         plt.show()
 
-    return objectCounter, drop_radius, drop_area
+    return objectCounter, drop_radius, drop_area, mean_circ, deviation_circ
