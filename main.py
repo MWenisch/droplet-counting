@@ -41,6 +41,8 @@ def run_droplet_count():
     droplet_num = []
     droplet_rad = []
     droplet_area = []
+    drop_mean_circularity = []
+    drop_deviation_circularity = []
 
     #Get metadata of the Tif file
     with TiffFile(path) as tif:
@@ -63,10 +65,12 @@ def run_droplet_count():
     #Read Tif file with stack or image to count the droplets
     _, input = imreadmulti(path)
     for image in input:
-        drop_nr, radius, drop_area = droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pixel, show_mask_plot)
+        drop_nr, radius, drop_area,  mean_circ, deviation_circ = droplet_counting(image, lower_boundary_threshold,minimal_droplet_size_in_pixel, show_mask_plot)
         droplet_num.append(drop_nr)
         droplet_rad.append(radius)
         droplet_area.append(drop_area)
+        drop_mean_circularity.append(mean_circ)
+        drop_deviation_circularity.append(deviation_circ)
         output_file = directory + specified_name + '_droplet_count.csv'
     print("#image:", len(droplet_num), "count", drop_nr)
 
@@ -75,7 +79,7 @@ def run_droplet_count():
     with open(output_file, mode='w') as output:
         writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         slice_number = 1
-        writer.writerow(['Slice number', 'Time [s]', 'Droplet number','Radius [μm]', 'Area [μm^2]' ])
+        writer.writerow(['Slice number', 'Time [s]', 'Droplet number','Radius [μm]', 'Area [μm^2]', 'mean circularity', 'deviation circularity' ])
         for number in droplet_num:
             time = starting_t + (slice_number-1)*frame_interval
             out_rad = ''
@@ -87,7 +91,7 @@ def run_droplet_count():
                 area_um = area * pixel_size * pixel_size
                 out_rad += str(r_um) + '_'
                 out_area += str(area_um) + '_'
-            writer.writerow([slice_number,time, number, out_rad[:-1], out_area[:-1]])
+            writer.writerow([slice_number,time, number, out_rad[:-1], out_area[:-1], drop_mean_circularity[slice_number - 1], drop_deviation_circularity[slice_number - 1]])
             slice_number += 1
 
     #Plot the droplet number over time and save the plot in the directory
